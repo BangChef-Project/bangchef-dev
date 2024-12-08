@@ -60,7 +60,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             ObjectMapper mapper = new ObjectMapper();
             LoginDto loginDTO = mapper.readValue(json.toString(), LoginDto.class);
 
-            String username = loginDTO.getUsername();
+            String username = loginDTO.getEmail();
             String password = loginDTO.getPassword();
 
             if (username == null || username.isEmpty()) {

@@ -1,10 +1,9 @@
 package com.bangchef.recipe_platform.user.service;
 
 import com.bangchef.recipe_platform.user.dto.JoinDto;
-import com.bangchef.recipe_platform.user.entity.Role;
+import com.bangchef.recipe_platform.common.enums.Role;
 import com.bangchef.recipe_platform.user.entity.User;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
-import com.bangchef.recipe_platform.user.service.EmailService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +38,7 @@ public class JoinService {
         boolean isEmailExist = userRepository.existsByEmail(email);
 
         if (isUsernameExist) {
-            throw new RuntimeException("이미 등록된 아이디입니다.");
+            throw new RuntimeException("이미 등록된 닉네임입니다.");
         }
         if (isEmailExist) {
             throw new RuntimeException("이미 등록된 이메일입니다.");

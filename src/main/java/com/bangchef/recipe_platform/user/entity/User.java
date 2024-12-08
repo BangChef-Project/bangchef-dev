@@ -1,5 +1,6 @@
 package com.bangchef.recipe_platform.user.entity;
 
+import com.bangchef.recipe_platform.common.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
 public class User {
 
     @Id

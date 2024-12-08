@@ -30,7 +30,7 @@ public class UserService {
 
     // 로그인 로직: DB에서 사용자 정보 조회 후 JWT 발급
     public String loginUser(LoginDto loginDto) {
-        User user = userRepository.findByUsername(loginDto.getUsername())
+        User user = userRepository.findByUsername(loginDto.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 비밀번호 확인
