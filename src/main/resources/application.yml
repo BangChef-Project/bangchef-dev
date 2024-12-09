@@ -1,6 +1,9 @@
 spring:
   application:
     name: recipe-platform
+  jwt:
+    secret: vmfhaadadadaddaddadltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalqwerqwerqwer
+
   h2:
     console:
       enabled: true
@@ -15,3 +18,21 @@ spring:
     url: jdbc:h2:mem:bangchef
     username: sa
     password:
+
+  mail:
+    host: smtp.gmail.com #gmail의 smtp 서버 호스트
+    port: 587 #gmail의 smtp 서버 포트
+    username: projectversionmail@gmail.com
+    password: cyho ciwx anmb niqi
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true # smtp 서버에 인증 필요한 경우 true 로 지정. gmail은 요구함
+          starttls:
+            enable: true # smtp 서버가 tls를 사용하여 안전한 연결을 요구하는 경우
+            required: true
+          connectiontimeout: 5000 # 클라이언트가 smtp 서버와 연결을 설정하는 데 대기해야하는 시간
+          timeout: 5000 # 클라이언트가 smtp 서버로부터 응답을 대기해야하는 시간
+          writetimeout: 5000 # 클라이언트가 작업을 완료하는데 대기해아하는 시간
+    auth-code-expiration-millis: 18000 # 30 * 60 *1000 =30분 이메일 인증 코드의 만료시간
