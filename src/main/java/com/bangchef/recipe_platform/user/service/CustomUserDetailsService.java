@@ -1,39 +1,25 @@
 package com.bangchef.recipe_platform.user.service;
 
-
 import com.bangchef.recipe_platform.user.dto.CustomUserDetails;
 import com.bangchef.recipe_platform.user.entity.User;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-    @Autowired
     private final UserRepository userRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
-
-        this.userRepository = userRepository;
-    }
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-
-        User user = userRepository.findByUsername(username)
-
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을수없습니다." + username));
-
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일로 사용자를 찾을 수 없습니다: " + email));
         return new CustomUserDetails(user);
-
     }
 }
 

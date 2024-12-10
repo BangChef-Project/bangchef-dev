@@ -31,11 +31,10 @@ public class JWTUtil {
                 .getBody();
     }
 
-
-    // User ID 추출
-    public Long getUserId(String token) {
+    // Email 추출
+    public String getEmail(String token) {
         Claims claims = getClaims(token);
-        return claims.get("userid", Long.class);
+        return claims.get("email", String.class);
     }
 
     // 토큰 타입 추출
@@ -43,7 +42,6 @@ public class JWTUtil {
         Claims claims = getClaims(token);
         return claims.get("tokenType", String.class);
     }
-
 
     // Role 추출
     public String getRole(String token) {
@@ -57,7 +55,6 @@ public class JWTUtil {
             Claims claims = getClaims(token);
             return claims.getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
-            // JWT가 만료된 경우 예외가 발생하므로, true 반환
             return true;
         }
     }
@@ -69,10 +66,10 @@ public class JWTUtil {
 
         return Jwts.builder()
                 .claim("tokenType", tokenType)
-                .claim("userid", user.getUserId())
+                .claim("email", user.getEmail()) // 이메일 기반으로 변경
                 .claim("role", role)
-                .setIssuedAt(now)  //
-                .setExpiration(expiration)  //
+                .setIssuedAt(now)
+                .setExpiration(expiration)
                 .signWith(key)
                 .compact();
     }

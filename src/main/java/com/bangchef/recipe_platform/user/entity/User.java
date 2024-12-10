@@ -1,6 +1,7 @@
 package com.bangchef.recipe_platform.user.entity;
 
 import com.bangchef.recipe_platform.common.enums.Role;
+import com.bangchef.recipe_platform.security.token.entity.RefreshToken;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,12 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table (name = "users")
 public class User {
 
     @Id
@@ -60,6 +64,11 @@ public class User {
 
     @Column(unique = true)
     private String verificationToken; // 이메일 인증 토큰
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
+
+
 
 //    // toString 메서드 (옵션)
 //    @Override

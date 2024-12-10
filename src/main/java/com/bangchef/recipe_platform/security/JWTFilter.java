@@ -1,5 +1,6 @@
 package com.bangchef.recipe_platform.security;
 
+import com.bangchef.recipe_platform.user.dto.CustomUserDetails;
 import com.bangchef.recipe_platform.user.entity.User;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -9,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -31,8 +33,7 @@ public class JWTFilter extends OncePerRequestFilter {
         log.debug("JWTFilter 실행 중");
 
         String requestURI = request.getRequestURI();
-        if (requestURI.equals("/users/login") || requestURI.equals("/users/join") || requestURI.equals(
-                "/token/reissue")) {
+        if (requestURI.equals("/users/login") || requestURI.equals("/users/join") || requestURI.equals("/token/reissue")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,6 +46,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         accessToken = accessToken.substring(7);
         log.debug("Extracted JWT Token: {}", accessToken);
+
         try {
             if (jwtUtil.isExpired(accessToken)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -58,19 +60,21 @@ public class JWTFilter extends OncePerRequestFilter {
                 return;
             }
 
-            Long userId = jwtUtil.getUserId(accessToken);
-            User user = userRepository.findByUserId(userId)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+            String email = jwtUtil.getEmail(accessToken);
+            log.debug("Extracted email from token: {}", email);
 
-            // 여기서 권한 확인
-            String role = jwtUtil.getRole(accessToken);
-            log.debug("Token Role: {}", role); // ADMIN 권한 확인
-            if (!role.equals("USER") && !role.equals("ADMIN")) {
-                log.debug("권한 부족: USER 또는 ADMIN 권한이 아님");
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().print("Forbidden: USER 또는 ADMIN 권한 필요");
-                return;
-            }
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+            // CustomUserDetails 생성 및 SecurityContext에 설정
+            CustomUserDetails userDetails = new CustomUserDetails(user);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(user); // Optional: 추가 정보를 details에 설정
+            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            log.debug("SecurityContext에 사용자 인증 정보 설정 완료: {}", userDetails);
+
         } catch (ExpiredJwtException e) {
             log.error("토큰 만료: ", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

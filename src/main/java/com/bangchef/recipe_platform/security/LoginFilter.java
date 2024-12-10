@@ -60,16 +60,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             ObjectMapper mapper = new ObjectMapper();
             LoginDto loginDTO = mapper.readValue(json.toString(), LoginDto.class);
 
-            String username = loginDTO.getEmail();
+            String email = loginDTO.getEmail();
             String password = loginDTO.getPassword();
 
-            if (username == null || username.isEmpty()) {
+            if (email == null || email.isEmpty()) {
                 log.warn("로그인 실패: 아이디가 비어있습니다.");
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, HttpStatus.BAD_REQUEST);
             }
 
             UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-                    username, password);
+                    email, password);
             return this.getAuthenticationManager().authenticate(authRequest);
         } catch (IOException e) {
             log.error("로그인 요청 데이터 처리 중 오류 발생: {}", e.getMessage());
@@ -96,17 +96,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         try {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             User user = userDetails.getUser();
-            Long userId = user.getUserId();
+            String email = user.getEmail();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-            if (user == null || userId == null) {
-                log.error("User 객체가 null이거나 userId가 설정되지 않았습니다.");
+            if (user == null || email == null) {
+                log.error("User 객체가 null이거나 email이 설정되지 않았습니다.");
                 throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
             }
 
-            boolean refreshTokenExists = refreshTokenRepository.existsByUser_UserId(userId);
+            boolean refreshTokenExists = refreshTokenRepository.existsByEmail(email);
             if (refreshTokenExists) {
-                log.warn("중복된 로그인 시도가 감지되었습니다. 사용자 ID: {}", userId);
+                log.warn("중복된 로그인 시도가 감지되었습니다. 사용자 이메일: {}", email);
                 throw new CustomException(ErrorCode.USER_ALREADY_EXISTS, ErrorCode.USER_ALREADY_EXISTS.getStatus());
             }
 
@@ -116,7 +116,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
             }
 
-            refreshTokenRepository.deleteByUserId(userId);
+            refreshTokenRepository.deleteByEmail(email);
             String accessToken = jwtUtil.createJwt("access", user, role,
                     Duration.ofMinutes(10).toMillis());
             String refreshToken = jwtUtil.createJwt("refresh", user, role, Duration.ofDays(7).toMillis());

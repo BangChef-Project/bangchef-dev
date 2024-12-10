@@ -92,8 +92,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
         }
 
         // 로그아웃 진행: Refresh 토큰 DB에서 제거
-        Long userId = jwtUtil.getUserId(refresh);
-        refreshTokenRepository.deleteByUserId(userId);
+        String email = jwtUtil.getEmail(refresh); // 이메일 기반으로 변경
+        refreshTokenRepository.deleteByEmail(email); // 이메일로 Refresh 토큰 삭제
 
         // Refresh 토큰 쿠키 삭제
         Cookie cookie = new Cookie("refresh", null);

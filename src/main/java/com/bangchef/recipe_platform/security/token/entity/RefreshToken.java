@@ -19,7 +19,11 @@ public class RefreshToken {
 
     private String expiration; // 만료시간
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private String email;
+
+    private String password;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }
