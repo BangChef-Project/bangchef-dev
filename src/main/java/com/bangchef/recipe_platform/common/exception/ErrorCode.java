@@ -8,6 +8,7 @@ public enum ErrorCode {
     //일반
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
 
 
 
@@ -21,7 +22,13 @@ public enum ErrorCode {
     // 메일 인증 관련
     EMAIL_VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메일 인증에 실패했습니다."),
     EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다."),
-    EMAIL_SEND_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."); // 반드시 정의되어 있어야 함
+    EMAIL_SEND_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
+
+    // 임시 비밀번호 재발급 관련
+    PASSWORD_RESET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 재설정 중 오류가 발생했습니다."),
+    USER_EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이메일로 등록된 사용자를 찾을 수 없습니다."),
+    TEMP_PASSWORD_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "임시 비밀번호 생성에 실패했습니다.");
+
 
 
 

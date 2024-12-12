@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +25,7 @@ public class LogoutController {
         this.jwtUtil = jwtUtil;
     }
 
-    @DeleteMapping("/logout")
+    @PostMapping("/logout")
     @Transactional // 트랜잭션 처리
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String refresh = getRefreshTokenFromCookies(request);
@@ -47,8 +48,8 @@ public class LogoutController {
         }
 
         // Refresh 토큰 DB에서 제거
-        Long userId = jwtUtil.getUserId(refresh);
-        refreshTokenRepository.deleteByUserId(userId);
+        String email = jwtUtil.getEmail(refresh); // 토큰에서 이메일 추출
+        refreshTokenRepository.deleteByEmail(email); // 이메일 기반으로 삭제
 
         // 쿠키 삭제
         deleteRefreshCookie(response);

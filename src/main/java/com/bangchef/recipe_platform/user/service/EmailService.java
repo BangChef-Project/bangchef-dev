@@ -30,4 +30,20 @@ public class EmailService {
 
         mailSender.send(mimeMessage);
     }
+
+    public void sendTemporaryPasswordEmail(String recipientEmail, String tempPassword) throws MessagingException {
+        String subject = "임시 비밀번호 발급";
+        String message = "<h1>임시 비밀번호</h1>" +
+                "<p>요청하신 임시 비밀번호는 아래와 같습니다:</p>" +
+                "<p><b>" + tempPassword + "</b></p>" +
+                "<p>로그인 후 반드시 비밀번호를 변경해주세요.</p>";
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+        helper.setTo(recipientEmail);
+        helper.setSubject(subject);
+        helper.setText(message, true); // HTML 형식으로 전송
+
+        mailSender.send(mimeMessage);
+    }
 }

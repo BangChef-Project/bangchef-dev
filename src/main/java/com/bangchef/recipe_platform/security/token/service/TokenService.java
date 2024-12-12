@@ -53,18 +53,17 @@ public class TokenService {
         }
 
         // 유저 정보 확인 및 새로운 토큰 발급
-        Long userId = jwtUtil.getUserId(refresh);
+        String email = jwtUtil.getEmail(refresh); // Email 기반으로 변경
         String role = jwtUtil.getRole(refresh);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(email) // Email로 사용자 조회
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
         // 새로운 access 및 refresh 토큰 발급
         String newAccess = jwtUtil.createJwt("access", user, role, 600000L); // 10분
         String newRefresh = jwtUtil.createJwt("refresh", user, role, 604800000L); // 7일
 
         // 기존 refresh 토큰 삭제 후 새 토큰 저장
-        refreshTokenRepository.deleteByUserId(userId);
-        //refreshTokenRepository.deleteByRefresh(refresh);
+        refreshTokenRepository.deleteByEmail(email);
         saveRefreshToken(user, newRefresh, 604800000L); // 새로운 refresh 토큰 저장
 
         // 갱신된 토큰을 응답으로 전송

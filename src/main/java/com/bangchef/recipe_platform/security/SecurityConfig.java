@@ -59,14 +59,15 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
 
-                        .requestMatchers("/user/**").hasAuthority("USER")
-
                         .requestMatchers(
                                 "/",
                                 "/users/logout",
                                 "/users/login",
                                 "/users/join",
-                                "users/verify/**",
+                                "/users/verify/**",
+                                "/users/reset-password",
+                                "/users/info",
+                                "/users/update",
                                 "/h2-console/**" //서브경로 포함
                         ).permitAll()
 

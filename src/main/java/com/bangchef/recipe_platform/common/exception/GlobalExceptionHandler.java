@@ -3,9 +3,13 @@ package com.bangchef.recipe_platform.common.exception;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -35,6 +39,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.EMAIL_SEND_FAILURE.getStatus())
                 .body(response);
+    }
+
+    // 비밀번호 재발급 관련 에러 처리
+    @ExceptionHandler(RuntimeException.class) // 예외를 RuntimeException으로 받음
+    protected ResponseEntity<ErrorResponse> handlePasswordResetException(
+            RuntimeException e, HttpServletRequest request) {
+        log.error("RuntimeException: {}", e.getMessage());
+        ErrorResponse response;
+
+        if (e.getMessage().contains("사용자")) {
+            response = ErrorResponse.of(ErrorCode.USER_EMAIL_NOT_FOUND, request.getRequestURI());
+        } else if (e.getMessage().contains("비밀번호")) {
+            response = ErrorResponse.of(ErrorCode.PASSWORD_RESET_FAILED, request.getRequestURI());
+        } else {
+            response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, request.getRequestURI());
+        }
+
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return ResponseEntity.badRequest().body(errorMessage);
     }
 
 }
