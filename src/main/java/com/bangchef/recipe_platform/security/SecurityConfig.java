@@ -67,6 +67,7 @@ public class SecurityConfig {
                                 "/users/login",
                                 "/users/join",
                                 "users/verify/**",
+                                "/recipes/**",
                                 "/h2-console/**" //서브경로 포함
                         ).permitAll()
 
