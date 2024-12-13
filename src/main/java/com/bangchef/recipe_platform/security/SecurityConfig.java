@@ -53,12 +53,10 @@ public class SecurityConfig {
                                 "/users/logout",
                                 "/users/login",
                                 "/users/join",
-                                "users/verify/**",
                                 "/users/verify/**",
                                 "/users/reset-password",
                                 "/users/info",
                                 "/users/update",
-                                "/recipes/**",
                                 "/h2-console/**" //서브경로 포함
                         ).permitAll()
 
