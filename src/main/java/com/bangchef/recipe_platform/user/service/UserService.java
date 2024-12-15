@@ -1,5 +1,6 @@
 package com.bangchef.recipe_platform.user.service;
 
+import com.bangchef.recipe_platform.common.enums.UserSortType;
 import com.bangchef.recipe_platform.common.exception.CustomException;
 import com.bangchef.recipe_platform.common.exception.ErrorCode;
 import com.bangchef.recipe_platform.security.JWTUtil;
@@ -17,6 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -132,6 +136,9 @@ public class UserService {
         userResponse.setPassword(user.getPassword());
         userResponse.setProfileImage(user.getProfileImage());
         userResponse.setIntroduction(user.getIntroduction());
+        userResponse.setSubscribers(user.getSubscribers());
+        userResponse.setAvgRating(user.getAvgRating());
+
         return userResponse;
 
     }
@@ -152,5 +159,85 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    // 회원 닉네임 검색
+    public List<UserResponseDto> findUserByName(String username, int page, UserSortType sortType){
+        List<User> userList = userRepository.findByUserNameLike(username);
 
+        if (userList.isEmpty()){
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        List<UserResponseDto> userDtoList = new ArrayList<>();
+
+        for (User user : userList) {
+            UserResponseDto userDto = convertToUserResponseDTO(user);
+            userDto.setPassword("****");
+            userDtoList.add(userDto);
+        }
+
+        sortBySortType(userDtoList, sortType);
+
+        return getPagedUser(userDtoList, page);
+    }
+
+    private static void sortBySortType(List<UserResponseDto> userDtoList, UserSortType sortType){
+        if (sortType == UserSortType.ABC_ASC){
+            userDtoList.sort(new Comparator<UserResponseDto>() {
+                @Override
+                public int compare(UserResponseDto o1, UserResponseDto o2) {
+                    return o1.getUsername().compareTo(o2.getUsername());
+                }
+            });
+        } else if (sortType == UserSortType.ABC_DES){
+            userDtoList.sort(new Comparator<UserResponseDto>() {
+                @Override
+                public int compare(UserResponseDto o1, UserResponseDto o2) {
+                    return o2.getUsername().compareTo(o1.getUsername());
+                }
+            });
+        } else if (sortType == UserSortType.SUBSCRIBER_ASC){
+            userDtoList.sort(new Comparator<UserResponseDto>() {
+                @Override
+                public int compare(UserResponseDto o1, UserResponseDto o2) {
+                    return o1.getSubscribers() - o2.getSubscribers();
+                }
+            });
+        } else if (sortType == UserSortType.SUBSCRIBER_DES){
+            userDtoList.sort(new Comparator<UserResponseDto>() {
+                @Override
+                public int compare(UserResponseDto o1, UserResponseDto o2) {
+                    return o2.getSubscribers() - o1.getSubscribers();
+                }
+            });
+        } else if (sortType == UserSortType.RATING_ASC){
+            userDtoList.sort(new Comparator<UserResponseDto>() {
+                @Override
+                public int compare(UserResponseDto o1, UserResponseDto o2) {
+                    return (int)(o1.getAvgRating() - o2.getAvgRating());
+                }
+            });
+        } else if (sortType == UserSortType.RATING_DES){
+            userDtoList.sort(new Comparator<UserResponseDto>() {
+                @Override
+                public int compare(UserResponseDto o1, UserResponseDto o2) {
+                    return (int)(o2.getAvgRating() - o1.getAvgRating());
+                }
+            });
+        }
+    }
+
+    private static List<UserResponseDto> getPagedUser(List<UserResponseDto> userDtoList, int page){
+        List<UserResponseDto> pagedUser = new ArrayList<>();
+        final int PAGE_SIZE = 15;
+
+        for (int i = PAGE_SIZE * page; i < PAGE_SIZE * (page + 1); i++){
+            if (userDtoList.size() <= i){
+                break;
+            }
+
+            pagedUser.add(userDtoList.get(i));
+        }
+
+        return pagedUser;
+    }
 }

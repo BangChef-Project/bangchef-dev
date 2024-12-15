@@ -1,5 +1,6 @@
 package com.bangchef.recipe_platform.user.controller;
 
+import com.bangchef.recipe_platform.common.enums.UserSortType;
 import com.bangchef.recipe_platform.user.dto.UserResponseDto;
 import com.bangchef.recipe_platform.user.dto.UserUpdateDto;
 import com.bangchef.recipe_platform.user.service.UserService;
@@ -51,5 +52,14 @@ public class UserController {
             log.error("회원 탈퇴 실패: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원 탈퇴 실패: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/name")
+    public ResponseEntity<?> findByUserByName(
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortType") UserSortType sortType
+    ){
+        return ResponseEntity.ok(userService.findUserByName(name, page, sortType));
     }
 }
