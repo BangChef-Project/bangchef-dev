@@ -1,7 +1,6 @@
 package com.bangchef.recipe_platform.recipe.controller;
 
 import com.bangchef.recipe_platform.common.enums.RecipeSortType;
-import com.bangchef.recipe_platform.recipe.dto.CategoriesBySortDto;
 import com.bangchef.recipe_platform.recipe.dto.RequestRecipeDto;
 import com.bangchef.recipe_platform.recipe.entity.Recipe;
 import com.bangchef.recipe_platform.recipe.service.RecipeService;
@@ -37,7 +36,7 @@ public class RecipeController {
 
     @GetMapping("/category")
     public ResponseEntity<?> findRecipeByCategory(
-            @Valid @RequestBody CategoriesBySortDto categoriesBySortDto,
+            @Valid @RequestBody RequestRecipeDto.CategoriesBySortDto categoriesBySortDto,
             @RequestParam(name = "page", defaultValue = "0") int page
     ){
         return ResponseEntity.ok(recipeService.findRecipeByCategory(categoriesBySortDto.getCategories(), page, categoriesBySortDto.getSortType()));
