@@ -15,11 +15,25 @@ public class RecipeController {
 
     private final RecipeService recipeService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.Create create,
                                           @RequestParam Long userId) {
-        Recipe recipe = recipeService.createRecipe(create, userId);
 
-        return ResponseEntity.ok(recipe);
+        return ResponseEntity.ok(recipeService.createRecipe(create, userId));
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateRecipe(@Validated @RequestBody RequestRecipeDto.Update update) {
+
+        return ResponseEntity.ok(recipeService.updateRecipe(update));
+    }
+
+    @DeleteMapping("/delete/{recipeId}")
+    public ResponseEntity<?> deleteRecipe(@PathVariable Long recipeId) {
+
+        recipeService.deleteRecipe(recipeId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }
