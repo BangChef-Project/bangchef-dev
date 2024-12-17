@@ -29,4 +29,16 @@ public class ResponseRecipeDto {
         private List<RequestRecipeDto.CookingStepDto> cookingStepList;
     }
 
+    @Data
+    public static class Detail {
+        private Long id;
+        private String title;
+        private RecipeCategory category;
+        private Difficulty difficulty;
+        private int cookTime;
+        private int views;
+        private int favoritesCount;
+        private Float avgRating;
+        private String imageUrl;
+    }
 }
