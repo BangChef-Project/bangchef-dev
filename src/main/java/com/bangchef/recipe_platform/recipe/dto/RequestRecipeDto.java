@@ -2,13 +2,23 @@ package com.bangchef.recipe_platform.recipe.dto;
 
 import com.bangchef.recipe_platform.common.enums.Difficulty;
 import com.bangchef.recipe_platform.common.enums.RecipeCategory;
+import com.bangchef.recipe_platform.common.enums.RecipeSortType;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RequestRecipeDto {
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CategoriesBySortDto {
+        private RecipeCategory[] categories;
+        private RecipeSortType sortType;
+    }
 
     @Data
     public static class Create {

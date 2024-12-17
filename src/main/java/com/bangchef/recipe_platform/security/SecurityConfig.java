@@ -55,6 +55,8 @@ public class SecurityConfig {
                                 "/users/reset-password",
                                 "/users/info",
                                 "/users/update",
+                                "/recipes",
+                                "/recipes/**",
                                 "/h2-console/**" //서브경로 포함
                         ).permitAll()
 
