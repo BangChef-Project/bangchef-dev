@@ -30,7 +30,7 @@ public class Recipe {
     private String title; // 레시피 제목
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
-    private String description; // 레시피 설명
+    private String description; // git 레시피 설명
 
     @Column(name = "ingredients", nullable = false, columnDefinition = "TEXT")
     private String ingredients; // 재료 리스트 (구분자로 구분)

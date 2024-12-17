@@ -16,4 +16,6 @@ public class UserResponseDto {
     private String password;
     private String profileImage;
     private String introduction;
+    private Integer subscribers;
+    private Float avgRating;
 }

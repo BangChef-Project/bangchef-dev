@@ -3,15 +3,13 @@ package com.bangchef.recipe_platform.user.entity;
 import com.bangchef.recipe_platform.common.enums.Role;
 import com.bangchef.recipe_platform.security.token.entity.RefreshToken;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Entity
 @Getter
 @Setter
@@ -42,6 +40,14 @@ public class User {
 
     @Column(name = "introduction", columnDefinition = "TEXT")
     private String introduction;
+
+    @Builder.Default
+    @Column(name = "subscribers")
+    private Integer subscribers = 0;
+
+    @Builder.Default
+    @Column(name = "avg_rating")
+    private Float avgRating = 0.0f;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
