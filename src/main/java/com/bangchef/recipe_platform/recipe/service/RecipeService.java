@@ -10,7 +10,6 @@ import com.bangchef.recipe_platform.recipe.entity.CookingStep;
 import com.bangchef.recipe_platform.recipe.entity.Recipe;
 import com.bangchef.recipe_platform.recipe.repository.CookingStepRepository;
 import com.bangchef.recipe_platform.recipe.repository.RecipeRepository;
-import com.bangchef.recipe_platform.user.dto.UserResponseDto;
 import com.bangchef.recipe_platform.user.entity.User;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class RecipeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Recipe createRecipe(RequestRecipeDto.Create requestDto, Long userId) {
+    public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.Create requestDto, Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -58,11 +57,74 @@ public class RecipeService {
 
         cookingStepRepository.saveAll(cookingStepList);
 
-        return savedRecipe;
+        return ResponseRecipeDto.RecipeInfo.builder()
+                .username(user.getUsername())
+                .id(savedRecipe.getId())
+                .title(savedRecipe.getTitle())
+                .description(savedRecipe.getDescription())
+                .ingredients(savedRecipe.getIngredients())
+                .category(savedRecipe.getCategory())
+                .difficulty(savedRecipe.getDifficulty())
+                .cookTime(savedRecipe.getCookTime())
+                .views(savedRecipe.getViews())
+                .favoritesCount(savedRecipe.getFavoritesCount())
+                .avgRating(savedRecipe.getAvgRating())
+                .imageUrl(savedRecipe.getImageUrl())
+                .createdAt(savedRecipe.getCreatedAt())
+                .cookingStepList(requestDto.getCookingStepDtoList())
+                .build();
     }
 
-    private ResponseRecipeDto.List convertToRecipeResponseDTO(Recipe recipe) {
-        ResponseRecipeDto.List detail = new ResponseRecipeDto.List();
+    @Transactional
+    public ResponseRecipeDto.RecipeInfo updateRecipe(RequestRecipeDto.Update requestDto) {
+        Recipe recipe = recipeRepository.findById(requestDto.getId()).orElseThrow(() -> new RuntimeException("Recipe not found"));
+
+        recipe.setTitle(requestDto.getTitle());
+        recipe.setDescription(requestDto.getDescription());
+        recipe.setIngredients(requestDto.getIngredients());
+        recipe.setCategory(requestDto.getCategory());
+        recipe.setDifficulty(requestDto.getDifficulty());
+        recipe.setCookTime(requestDto.getCookTime());
+        recipe.setImageUrl(requestDto.getImageUrl());
+
+        cookingStepRepository.deleteByRecipeId(recipe.getId());
+
+        List<CookingStep> cookingStepList = requestDto.getCookingStepDtoList().stream()
+                .map(cookingStepDto -> CookingStep.builder()
+                        .recipe(recipe)
+                        .stepNumber(cookingStepDto.getStepNumber())
+                        .description(cookingStepDto.getDescription())
+                        .imageUrl(cookingStepDto.getImageUrl())
+                        .build())
+                .toList();
+
+        cookingStepRepository.saveAll(cookingStepList);
+
+        return ResponseRecipeDto.RecipeInfo.builder()
+                .username(recipe.getUser().getUsername())
+                .id(recipe.getId())
+                .title(recipe.getTitle())
+                .description(recipe.getDescription())
+                .ingredients(recipe.getIngredients())
+                .category(recipe.getCategory())
+                .difficulty(recipe.getDifficulty())
+                .cookTime(recipe.getCookTime())
+                .views(recipe.getViews())
+                .favoritesCount(recipe.getFavoritesCount())
+                .avgRating(recipe.getAvgRating())
+                .imageUrl(recipe.getImageUrl())
+                .createdAt(recipe.getCreatedAt())
+                .cookingStepList(requestDto.getCookingStepDtoList())
+                .build();
+    }
+
+    @Transactional
+    public void deleteRecipe(Long recipeId) {
+        recipeRepository.deleteById(recipeId);
+    }
+
+    private ResponseRecipeDto.Detail convertToRecipeResponseDTO(Recipe recipe) {
+        ResponseRecipeDto.Detail detail = new ResponseRecipeDto.Detail();
 
         detail.setId(recipe.getId());
         detail.setTitle(recipe.getTitle());
@@ -77,17 +139,17 @@ public class RecipeService {
         return detail;
     }
 
-    public List<ResponseRecipeDto.List> findRecipeByTitle(String title, int page, RecipeSortType sortType){
+    public List<ResponseRecipeDto.Detail> findRecipeByTitle(String title, int page, RecipeSortType sortType){
         List<Recipe> recipeList = recipeRepository.findByTitle(title);
 
         if (recipeList.isEmpty()){
             throw new CustomException(ErrorCode.RECIPE_NOT_FOUND);
         }
 
-        List<ResponseRecipeDto.List> recipeDtoList = new ArrayList<>();
+        List<ResponseRecipeDto.Detail> recipeDtoList = new ArrayList<>();
 
         for (Recipe recipe : recipeList) {
-            ResponseRecipeDto.List recipeDto = convertToRecipeResponseDTO(recipe);
+            ResponseRecipeDto.Detail recipeDto = convertToRecipeResponseDTO(recipe);
             recipeDtoList.add(recipeDto);
         }
 
@@ -96,7 +158,7 @@ public class RecipeService {
         return getPagedRecipe(recipeDtoList, page);
     }
 
-    public List<ResponseRecipeDto.List> findRecipeByCategory(RecipeCategory[] categories, int page, RecipeSortType sortType){
+    public List<ResponseRecipeDto.Detail> findRecipeByCategory(RecipeCategory[] categories, int page, RecipeSortType sortType){
         HashMap<String, Integer> countingMap = new HashMap<>();
         Set<Recipe> recipeSet = new HashSet<>();
 
@@ -119,13 +181,13 @@ public class RecipeService {
             }
         }
 
-        List<ResponseRecipeDto.List> recipeDtoList = new ArrayList<>();
+        List<ResponseRecipeDto.Detail> recipeDtoList = new ArrayList<>();
 
         for (Recipe recipe : recipeSet){
             String title = recipe.getTitle();
 
             if (countingMap.containsKey(title) && countingMap.get(title) > 0){
-                ResponseRecipeDto.List recipeDto = convertToRecipeResponseDTO(recipe);
+                ResponseRecipeDto.Detail recipeDto = convertToRecipeResponseDTO(recipe);
                 recipeDtoList.add(recipeDto);
             }
         }
@@ -135,54 +197,54 @@ public class RecipeService {
         return getPagedRecipe(recipeDtoList, page);
     }
 
-    private static void sortBySortType(List<ResponseRecipeDto.List> recipeDtoList, RecipeSortType sortType){
+    private static void sortBySortType(List<ResponseRecipeDto.Detail> recipeDtoList, RecipeSortType sortType){
         if (sortType == RecipeSortType.VIEWS_ASC){
-            recipeDtoList.sort(new Comparator<ResponseRecipeDto.List>() {
+            recipeDtoList.sort(new Comparator<ResponseRecipeDto.Detail>() {
                 @Override
-                public int compare(ResponseRecipeDto.List o1, ResponseRecipeDto.List o2) {
+                public int compare(ResponseRecipeDto.Detail o1, ResponseRecipeDto.Detail o2) {
                     return o1.getViews() - o2.getViews();
                 }
             });
         } else if (sortType == RecipeSortType.VIEWS_DES){
-            recipeDtoList.sort(new Comparator<ResponseRecipeDto.List>() {
+            recipeDtoList.sort(new Comparator<ResponseRecipeDto.Detail>() {
                 @Override
-                public int compare(ResponseRecipeDto.List o1, ResponseRecipeDto.List o2) {
+                public int compare(ResponseRecipeDto.Detail o1, ResponseRecipeDto.Detail o2) {
                     return o2.getViews() - o1.getViews();
                 }
             });
         } else if (sortType == RecipeSortType.RATING_ASC){
-            recipeDtoList.sort(new Comparator<ResponseRecipeDto.List>() {
+            recipeDtoList.sort(new Comparator<ResponseRecipeDto.Detail>() {
                 @Override
-                public int compare(ResponseRecipeDto.List o1, ResponseRecipeDto.List o2) {
+                public int compare(ResponseRecipeDto.Detail o1, ResponseRecipeDto.Detail o2) {
                     return (int)(o1.getAvgRating() - o2.getAvgRating());
                 }
             });
         } else if (sortType == RecipeSortType.RATING_DES){
-            recipeDtoList.sort(new Comparator<ResponseRecipeDto.List>() {
+            recipeDtoList.sort(new Comparator<ResponseRecipeDto.Detail>() {
                 @Override
-                public int compare(ResponseRecipeDto.List o1, ResponseRecipeDto.List o2) {
+                public int compare(ResponseRecipeDto.Detail o1, ResponseRecipeDto.Detail o2) {
                     return (int)(o2.getViews() - o1.getViews());
                 }
             });
         } else if (sortType == RecipeSortType.FAVORITES_ASC){
-            recipeDtoList.sort(new Comparator<ResponseRecipeDto.List>() {
+            recipeDtoList.sort(new Comparator<ResponseRecipeDto.Detail>() {
                 @Override
-                public int compare(ResponseRecipeDto.List o1, ResponseRecipeDto.List o2) {
+                public int compare(ResponseRecipeDto.Detail o1, ResponseRecipeDto.Detail o2) {
                     return o1.getFavoritesCount() - o2.getFavoritesCount();
                 }
             });
         } else if (sortType == RecipeSortType.FAVORITES_DES){
-            recipeDtoList.sort(new Comparator<ResponseRecipeDto.List>() {
+            recipeDtoList.sort(new Comparator<ResponseRecipeDto.Detail>() {
                 @Override
-                public int compare(ResponseRecipeDto.List o1, ResponseRecipeDto.List o2) {
+                public int compare(ResponseRecipeDto.Detail o1, ResponseRecipeDto.Detail o2) {
                     return o2.getFavoritesCount() - o1.getFavoritesCount();
                 }
             });
         }
     }
 
-    private static List<ResponseRecipeDto.List> getPagedRecipe(List<ResponseRecipeDto.List> recipeDtoList, int page){
-        List<ResponseRecipeDto.List> pagedRecipe = new ArrayList<>();
+    private static List<ResponseRecipeDto.Detail> getPagedRecipe(List<ResponseRecipeDto.Detail> recipeDtoList, int page){
+        List<ResponseRecipeDto.Detail> pagedRecipe = new ArrayList<>();
         final int PAGE_SIZE = 15;
 
         for (int i = PAGE_SIZE * page; i < PAGE_SIZE * (page + 1); i++){

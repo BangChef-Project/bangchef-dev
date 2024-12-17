@@ -2,7 +2,6 @@ package com.bangchef.recipe_platform.recipe.controller;
 
 import com.bangchef.recipe_platform.common.enums.RecipeSortType;
 import com.bangchef.recipe_platform.recipe.dto.RequestRecipeDto;
-import com.bangchef.recipe_platform.recipe.entity.Recipe;
 import com.bangchef.recipe_platform.recipe.service.RecipeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +16,25 @@ public class RecipeController {
 
     private final RecipeService recipeService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.Create create,
                                           @RequestParam Long userId) {
-        Recipe recipe = recipeService.createRecipe(create, userId);
 
-        return ResponseEntity.ok(recipe);
+        return ResponseEntity.ok(recipeService.createRecipe(create, userId));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateRecipe(@Validated @RequestBody RequestRecipeDto.Update update) {
+
+        return ResponseEntity.ok(recipeService.updateRecipe(update));
+    }
+
+    @DeleteMapping("/delete/{recipeId}")
+    public ResponseEntity<?> deleteRecipe(@PathVariable Long recipeId) {
+
+        recipeService.deleteRecipe(recipeId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/title")
@@ -41,4 +53,5 @@ public class RecipeController {
     ){
         return ResponseEntity.ok(recipeService.findRecipeByCategory(categoriesBySortDto.getCategories(), page, categoriesBySortDto.getSortType()));
     }
+
 }
