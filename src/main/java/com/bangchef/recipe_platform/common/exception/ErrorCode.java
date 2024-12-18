@@ -29,7 +29,14 @@ public enum ErrorCode {
     // 임시 비밀번호 재발급 관련
     PASSWORD_RESET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 재설정 중 오류가 발생했습니다."),
     USER_EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이메일로 등록된 사용자를 찾을 수 없습니다."),
-    TEMP_PASSWORD_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "임시 비밀번호 생성에 실패했습니다.");
+    TEMP_PASSWORD_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "임시 비밀번호 생성에 실패했습니다."),
+
+    // 등업 요청 관련
+    ROLE_UPDATE_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "등업 요청을 찾을 수 없습니다."),
+    DUPLICATE_ROLE_UPDATE_REQUEST(HttpStatus.CONFLICT, "이미 처리 중인 등업 요청이 존재합니다."),
+    INVALID_ROLE_UPDATE_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 등업 요청입니다."),
+    ALREADY_CHEF(HttpStatus.BAD_REQUEST, "사용자는 이미 CHEF입니다."),
+    INVALID_ROLE_UPDATE_STATUS(HttpStatus.BAD_REQUEST, "잘못된 등업 요청 상태입니다.");
 
 
 

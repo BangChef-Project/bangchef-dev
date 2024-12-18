@@ -1,8 +1,12 @@
 package com.bangchef.recipe_platform.user.controller;
 
+import com.bangchef.recipe_platform.common.enums.RequestStatus;
+import com.bangchef.recipe_platform.common.enums.Role;
 import com.bangchef.recipe_platform.common.enums.UserSortType;
+import com.bangchef.recipe_platform.user.dto.RoleUpdateDto;
 import com.bangchef.recipe_platform.user.dto.UserResponseDto;
 import com.bangchef.recipe_platform.user.dto.UserUpdateDto;
+import com.bangchef.recipe_platform.user.service.RoleUpdateService;
 import com.bangchef.recipe_platform.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final RoleUpdateService roleUpdateService;
 
     @GetMapping("/info")
     public ResponseEntity<UserResponseDto> getMe() {
@@ -62,4 +67,22 @@ public class UserController {
     ){
         return ResponseEntity.ok(userService.findUserByName(name, page, sortType));
     }
+
+    // 등업 요청 생성
+    @PostMapping("/role-update")
+    public ResponseEntity<String> createRoleUpdateRequest(
+            @RequestBody RoleUpdateDto requestDto) {
+        roleUpdateService.createRoleUpdateRequest(requestDto.getEmail(), requestDto.getRole());
+        return ResponseEntity.ok("등업 요청이 완료되었습니다.");
+    }
+
+    // 사용자의 등업 요청 상태 조회
+    @GetMapping("/role-update/status")
+    public ResponseEntity<?> getUserRoleUpdateRequests(@RequestParam String email) {
+        String status = roleUpdateService.getUserRoleUpdateStatus(email);
+        return ResponseEntity.ok(status);
+    }
+
+
+
 }
