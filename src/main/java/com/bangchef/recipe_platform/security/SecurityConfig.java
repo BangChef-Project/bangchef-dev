@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
 
                         .requestMatchers("/users/role-update/status/**").hasAnyAuthority("USER", "CHEF")
+                        .requestMatchers("/reports/**").hasAnyAuthority("USER", "CHEF")
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
 
                         .requestMatchers(
@@ -60,6 +61,7 @@ public class SecurityConfig {
                                 "/users/update",
                                 "/recipes",
                                 "/recipes/**",
+                                "/reports/**",
                                 "/h2-console/**" //서브경로 포함
                         ).permitAll()
 

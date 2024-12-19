@@ -1,6 +1,7 @@
 package com.bangchef.recipe_platform.user.entity;
 
 import com.bangchef.recipe_platform.common.enums.Role;
+import com.bangchef.recipe_platform.report.entity.Report;
 import com.bangchef.recipe_platform.security.token.entity.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;
@@ -74,5 +75,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
+    @OneToMany(mappedBy = "reportedUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Report> reportedReports;
 
 }
