@@ -42,8 +42,8 @@ public class GlobalExceptionHandler {
     }
 
     // 비밀번호 재발급 관련 에러 처리
-    @ExceptionHandler(RuntimeException.class) // 예외를 RuntimeException으로 받음
-    protected ResponseEntity<ErrorResponse> handlePasswordResetException(
+    @ExceptionHandler(RuntimeException.class)
+    protected ResponseEntity<ErrorResponse> handleRuntimeException(
             RuntimeException e, HttpServletRequest request) {
         log.error("RuntimeException: {}", e.getMessage());
         ErrorResponse response;
@@ -52,6 +52,8 @@ public class GlobalExceptionHandler {
             response = ErrorResponse.of(ErrorCode.USER_EMAIL_NOT_FOUND, request.getRequestURI());
         } else if (e.getMessage().contains("비밀번호")) {
             response = ErrorResponse.of(ErrorCode.PASSWORD_RESET_FAILED, request.getRequestURI());
+        } else if (e.getMessage().contains("등업")) { // RoleUpdate 관련 에러 처리
+            response = ErrorResponse.of(ErrorCode.ROLE_UPDATE_REQUEST_NOT_FOUND, request.getRequestURI());
         } else {
             response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, request.getRequestURI());
         }
@@ -68,5 +70,6 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
         return ResponseEntity.badRequest().body(errorMessage);
     }
+
 
 }

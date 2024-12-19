@@ -1,5 +1,6 @@
 package com.bangchef.recipe_platform.user.dto;
 
+import com.bangchef.recipe_platform.common.enums.Role;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,4 +19,5 @@ public class UserResponseDto {
     private String introduction;
     private Integer subscribers;
     private Float avgRating;
+    private Role role;
 }

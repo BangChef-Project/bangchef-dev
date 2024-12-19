@@ -139,6 +139,20 @@ public class RecipeService {
         return detail;
     }
 
+    // 관리자 특정 레시피 삭제 권한
+    @Transactional
+    public void deleteRecipeById(Long recipeId) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RECIPE_NOT_FOUND));
+        recipeRepository.delete(recipe);
+    }
+
+    // 관리자 특정 회원 레시피 일괄 삭제
+    @Transactional
+    public void deleteRecipesByUser(User user) {
+        recipeRepository.deleteByUser(user);
+    }
+
     public List<ResponseRecipeDto.Detail> findRecipeByTitle(String title, int page, RecipeSortType sortType){
         List<Recipe> recipeList = recipeRepository.findByTitle(title);
 

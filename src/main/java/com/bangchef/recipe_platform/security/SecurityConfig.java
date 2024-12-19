@@ -46,6 +46,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
 
+                        .requestMatchers("/users/role-update/status/**").hasAnyAuthority("USER", "CHEF")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+
                         .requestMatchers(
                                 "/",
                                 "/users/logout",

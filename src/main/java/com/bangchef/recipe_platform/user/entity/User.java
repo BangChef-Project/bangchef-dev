@@ -75,20 +75,4 @@ public class User {
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
 
-
-//    // toString 메서드 (옵션)
-//    @Override
-//    public String toString() {
-//        return "User{" +
-//                "id=" + id +
-//                ", username='" + username + '\'' +
-//                ", email='" + email + '\'' +
-//                ", role=" + role +
-//                ", profileImage='" + profileImage + '\'' +
-//                ", introduction='" + introduction + '\'' +
-//                ", createdAt=" + createdAt +
-//                ", updatedAt=" + updatedAt +
-//                '}';
-//    }
-
 }

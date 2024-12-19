@@ -138,6 +138,7 @@ public class UserService {
         userResponse.setIntroduction(user.getIntroduction());
         userResponse.setSubscribers(user.getSubscribers());
         userResponse.setAvgRating(user.getAvgRating());
+        userResponse.setRole(user.getRole());
 
         return userResponse;
 

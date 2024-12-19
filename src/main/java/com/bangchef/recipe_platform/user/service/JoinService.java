@@ -29,6 +29,7 @@ public class JoinService {
         String username = joinDto.getUsername();
         String password = joinDto.getPassword();
         String email = joinDto.getEmail();
+        Role role = joinDto.getRole();
 
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("비밀번호는 필수 입력 사항입니다.");
@@ -44,12 +45,17 @@ public class JoinService {
             throw new RuntimeException("이미 등록된 이메일입니다.");
         }
 
+        // Role 기본값 설정
+        if (role == null) {
+            role = Role.USER; // Role이 없으면 기본값 USER로 설정
+        }
+
         // 유저 데이터 생성
         User user = new User();
         user.setUsername(username);
         user.setPassword(bCryptPasswordEncoder.encode(password));
         user.setEmail(email);
-        user.setRole(Role.USER);
+        user.setRole(role);
         user.setEnabled(false); // 초기 상태는 비활성화
 
         // 인증 토큰 생성
