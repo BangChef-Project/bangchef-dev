@@ -2,6 +2,7 @@ package com.bangchef.recipe_platform.recipe.entity;
 
 import com.bangchef.recipe_platform.common.enums.Difficulty;
 import com.bangchef.recipe_platform.common.enums.RecipeCategory;
+import com.bangchef.recipe_platform.report.entity.Report;
 import com.bangchef.recipe_platform.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -69,5 +70,8 @@ public class Recipe {
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("stepNumber ASC")
     private List<CookingStep> cookingStepList = new ArrayList<>(); // 조리순서
+
+    @OneToMany(mappedBy = "reportedRecipe", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Report> reports;
 
 }
