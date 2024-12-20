@@ -4,6 +4,8 @@ import com.bangchef.recipe_platform.common.enums.RequestStatus;
 import com.bangchef.recipe_platform.common.exception.CustomException;
 import com.bangchef.recipe_platform.common.exception.ErrorCode;
 import com.bangchef.recipe_platform.recipe.service.RecipeService;
+import com.bangchef.recipe_platform.report.dto.ReportHistoryResponseDto;
+import com.bangchef.recipe_platform.report.service.ReportService;
 import com.bangchef.recipe_platform.user.dto.UserResponseDto;
 import com.bangchef.recipe_platform.user.entity.User;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
@@ -14,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -21,12 +25,14 @@ public class AdminController {
     private final RoleUpdateService roleUpdateService;
     private final UserRepository userRepository;
     private final RecipeService recipeService;
+    private final ReportService reportService;
 
-    public AdminController(AdminService adminService, RoleUpdateService roleUpdateService, UserRepository userRepository, RecipeService recipeService) {
+    public AdminController(AdminService adminService, RoleUpdateService roleUpdateService, UserRepository userRepository, RecipeService recipeService, ReportService reportService) {
         this.adminService = adminService;
         this.roleUpdateService = roleUpdateService;
         this.userRepository = userRepository;
         this.recipeService = recipeService;
+        this.reportService = reportService;
     }
 
 
@@ -51,9 +57,9 @@ public class AdminController {
 
     @DeleteMapping("/users")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@RequestParam("email") String email) {
+    public ResponseEntity<String> deleteUser(@RequestParam("email") String email) {
         adminService.deleteUser(email);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("해당 회원의 탈퇴 처리가 완료되었습니다.", HttpStatus.OK);
     }
 
     // 관리자 : 특정 레시피 삭제
@@ -72,6 +78,14 @@ public class AdminController {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         recipeService.deleteRecipesByUser(user);
         return ResponseEntity.ok("사용자의 모든 레시피가 삭제되었습니다.");
+    }
+
+    // 신고 내역 조회
+    @GetMapping("/reports/history")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<List<ReportHistoryResponseDto>> getPendingReports() {
+        List<ReportHistoryResponseDto> pendingReports = reportService.getPendingReports();
+        return ResponseEntity.ok(pendingReports);
     }
 
 }
