@@ -17,14 +17,14 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.Create create,
+    public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.CreateRecipeDto create,
                                           @RequestParam Long userId) {
 
         return ResponseEntity.ok(recipeService.createRecipe(create, userId));
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateRecipe(@Validated @RequestBody RequestRecipeDto.Update update) {
+    public ResponseEntity<?> updateRecipe(@Validated @RequestBody RequestRecipeDto.UpdateRecipeDto update) {
 
         return ResponseEntity.ok(recipeService.updateRecipe(update));
     }

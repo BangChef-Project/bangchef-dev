@@ -60,6 +60,8 @@ public class SecurityConfig {
                                 "/users/update",
                                 "/recipes",
                                 "/recipes/**",
+                                "/comments",
+                                "/comments/**",
                                 "/h2-console/**" //서브경로 포함
                         ).permitAll()
 

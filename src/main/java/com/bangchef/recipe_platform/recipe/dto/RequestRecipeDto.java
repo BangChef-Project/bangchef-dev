@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestRecipeDto {
+
     @Getter
     @Setter
     @NoArgsConstructor
@@ -21,7 +22,7 @@ public class RequestRecipeDto {
     }
 
     @Data
-    public static class Create {
+    public static class CreateRecipeDto {
         @NotBlank(message = "레시피 제목은 필수입니다.")
         private String title;
 
@@ -66,7 +67,7 @@ public class RequestRecipeDto {
     }
 
     @Data
-    public static class Update {
+    public static class UpdateRecipeDto {
         @NotNull(message = "레시피 ID는 필수입니다.")
         private Long id;
 

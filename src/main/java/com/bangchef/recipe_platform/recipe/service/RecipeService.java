@@ -27,7 +27,7 @@ public class RecipeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.Create requestDto, Long userId) {
+    public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.CreateRecipeDto requestDto, Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -76,7 +76,7 @@ public class RecipeService {
     }
 
     @Transactional
-    public ResponseRecipeDto.RecipeInfo updateRecipe(RequestRecipeDto.Update requestDto) {
+    public ResponseRecipeDto.RecipeInfo updateRecipe(RequestRecipeDto.UpdateRecipeDto requestDto) {
         Recipe recipe = recipeRepository.findById(requestDto.getId()).orElseThrow(() -> new RuntimeException("Recipe not found"));
 
         recipe.setTitle(requestDto.getTitle());
