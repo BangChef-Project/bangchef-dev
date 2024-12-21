@@ -27,7 +27,7 @@ public class RecipeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.CreateRecipeDto requestDto, Long userId) {
+    public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.Create requestDto, Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -76,7 +76,7 @@ public class RecipeService {
     }
 
     @Transactional
-    public ResponseRecipeDto.RecipeInfo updateRecipe(RequestRecipeDto.UpdateRecipeDto requestDto) {
+    public ResponseRecipeDto.RecipeInfo updateRecipe(RequestRecipeDto.Update requestDto) {
         Recipe recipe = recipeRepository.findById(requestDto.getId()).orElseThrow(() -> new RuntimeException("Recipe not found"));
 
         recipe.setTitle(requestDto.getTitle());
@@ -87,7 +87,7 @@ public class RecipeService {
         recipe.setCookTime(requestDto.getCookTime());
         recipe.setImageUrl(requestDto.getImageUrl());
 
-        cookingStepRepository.deleteByRecipeId(recipe.getId());
+        cookingStepRepository.deleteByRecipe_Id(recipe.getId());
 
         List<CookingStep> cookingStepList = requestDto.getCookingStepDtoList().stream()
                 .map(cookingStepDto -> CookingStep.builder()

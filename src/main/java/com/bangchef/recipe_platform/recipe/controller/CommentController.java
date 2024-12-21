@@ -30,6 +30,6 @@ public class CommentController {
     public ResponseEntity<?> deleteComment(@PathVariable Long commentId) {
         commentService.deleteComment(commentId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("댓글이 삭제되었습니다.");
     }
 }

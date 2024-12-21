@@ -25,10 +25,12 @@ public class RatingController {
         return ResponseEntity.ok(ratingService.updateRating(createOrUpdate));
     }
 
-    @DeleteMapping("/delete/{ratingId}")
-    public ResponseEntity<?> deleteRating(@PathVariable Long ratingId) {
-        ratingService.deleteRating(ratingId);
+    @DeleteMapping("/delete/{recipeId}/{userId}")
+    public ResponseEntity<?> deleteRating(
+            @PathVariable Long recipeId, @PathVariable Long userId
+    ) {
+        ratingService.deleteRating(recipeId, userId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("별점이 삭제되었습니다.");
     }
 }

@@ -22,7 +22,7 @@ public class RequestRecipeDto {
     }
 
     @Data
-    public static class CreateRecipeDto {
+    public static class Create {
         @NotBlank(message = "레시피 제목은 필수입니다.")
         private String title;
 
@@ -67,7 +67,7 @@ public class RequestRecipeDto {
     }
 
     @Data
-    public static class UpdateRecipeDto {
+    public static class Update {
         @NotNull(message = "레시피 ID는 필수입니다.")
         private Long id;
 

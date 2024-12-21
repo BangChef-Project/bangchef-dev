@@ -36,7 +36,7 @@ public class RatingService {
         return ResponseRatingDto.Detail.builder()
                 .ratingId(savedRating.getId())
                 .recipeId(savedRating.getRecipe().getId())
-                .userId(savedRating.getUser().getUserId())
+                .userId(savedRating.getUser().getId())
                 .username(savedRating.getUser().getUsername())
                 .rating(savedRating.getRating())
                 .createdAt(savedRating.getCreatedAt())
@@ -53,7 +53,7 @@ public class RatingService {
         return ResponseRatingDto.Detail.builder()
                 .ratingId(rating.getId())
                 .recipeId(rating.getRecipe().getId())
-                .userId(rating.getUser().getUserId())
+                .userId(rating.getUser().getId())
                 .username(rating.getUser().getUsername())
                 .rating(rating.getRating())
                 .createdAt(rating.getCreatedAt())
@@ -61,7 +61,13 @@ public class RatingService {
     }
 
     @Transactional
-    public void deleteRating(Long ratingId) {
-        ratingRepository.deleteById(ratingId);
+    public void deleteRating(Long recipeId, Long userId) {
+        recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+
+        Rating rating = ratingRepository.findByUser_IdAndRecipe_Id(userId, recipeId)
+                .orElseThrow(() -> new RuntimeException("Rating not found"));
+
+        ratingRepository.delete(rating);
     }
 }

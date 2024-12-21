@@ -17,14 +17,14 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.CreateRecipeDto create,
+    public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.Create create,
                                           @RequestParam Long userId) {
 
         return ResponseEntity.ok(recipeService.createRecipe(create, userId));
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateRecipe(@Validated @RequestBody RequestRecipeDto.UpdateRecipeDto update) {
+    public ResponseEntity<?> updateRecipe(@Validated @RequestBody RequestRecipeDto.Update update) {
 
         return ResponseEntity.ok(recipeService.updateRecipe(update));
     }
@@ -34,7 +34,7 @@ public class RecipeController {
 
         recipeService.deleteRecipe(recipeId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("레시피가 삭제되었습니다.");
     }
 
     @GetMapping("/title")
