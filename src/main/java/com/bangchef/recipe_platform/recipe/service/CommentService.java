@@ -21,7 +21,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseCommentDto.Detail createComment(RequestCommentDto.CreateCommentDto requestDto, Long userId) {
+    public ResponseCommentDto.Detail createComment(RequestCommentDto.Create requestDto, Long userId) {
         Recipe recipe = recipeRepository.findById(requestDto.getRecipeId())
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
         User user = userRepository.findById(userId)
@@ -33,12 +33,30 @@ public class CommentService {
                     .orElseThrow(() -> new RuntimeException("Parent comment not found"));
         }
 
-        Comment comment = commentRepository.save(Comment.builder()
+        Comment savedComment = commentRepository.save(Comment.builder()
                 .recipe(recipe)
                 .user(user)
                 .parent(parent)
                 .content(requestDto.getContent())
                 .build());
+
+        return ResponseCommentDto.Detail.builder()
+                .commentId(savedComment.getId())
+                .parentId(savedComment.getParentId())
+                .recipeId(savedComment.getRecipe().getId())
+                .userId(savedComment.getUser().getUserId())
+                .username(savedComment.getUser().getUsername())
+                .content(savedComment.getContent())
+                .createdAt(savedComment.getCreatedAt())
+                .build();
+    }
+
+    @Transactional
+    public ResponseCommentDto.Detail updateComment(RequestCommentDto.Update requestDto) {
+        Comment comment = commentRepository.findById(requestDto.getCommentId())
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        comment.setContent(requestDto.getContent());
 
         return ResponseCommentDto.Detail.builder()
                 .commentId(comment.getId())
