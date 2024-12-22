@@ -67,7 +67,6 @@ public class RecipeService {
         List<Subscription> subscriptionList = subscriptionRepository.findByUserEmail(user.getEmail());
 
         RequestFCMDto requestFCMDto = RequestFCMDto.builder()
-                .targetToken("토큰기입")
                 .title(user.getUsername() + "님의 새 레시피가 등록되었습니다!")
                 .body("레시피 제목 : " + savedRecipe.getTitle())
                 .build();
@@ -75,7 +74,7 @@ public class RecipeService {
         for (Subscription subscription : subscriptionList){
             User trg = subscription.getSubscriber();
             firebaseCloudMessageService.sendMessageTo(
-                    requestFCMDto.getTargetToken(),
+                    trg.getFcmToken(),
                     requestFCMDto.getTitle(),
                     requestFCMDto.getBody()
             );

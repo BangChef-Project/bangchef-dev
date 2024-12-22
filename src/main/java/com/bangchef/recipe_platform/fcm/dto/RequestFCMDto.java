@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class RequestFCMDto {
-    private String targetToken;
     private String title;
     private String body;
 }

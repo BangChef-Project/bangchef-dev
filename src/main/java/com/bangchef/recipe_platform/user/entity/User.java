@@ -75,6 +75,9 @@ public class User {
     @Column(unique = true)
     private String verificationToken; // 이메일 인증 토큰
 
+    @Column(unique = true)
+    private String fcmToken; // fcm 토큰
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
