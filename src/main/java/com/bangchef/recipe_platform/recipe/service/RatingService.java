@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RatingService {
@@ -33,6 +35,8 @@ public class RatingService {
                 .rating(requestDto.getRating())
                 .build());
 
+        updateRecipeAvgRating(recipe);
+
         return ResponseRatingDto.Detail.builder()
                 .ratingId(savedRating.getId())
                 .recipeId(savedRating.getRecipe().getId())
@@ -50,6 +54,9 @@ public class RatingService {
 
         rating.setRating(requestDto.getRating());
 
+        updateRecipeAvgRating(recipeRepository.findById(requestDto.getRecipeId())
+                .orElseThrow(() -> new RuntimeException("Recipe not found")));
+
         return ResponseRatingDto.Detail.builder()
                 .ratingId(rating.getId())
                 .recipeId(rating.getRecipe().getId())
@@ -62,12 +69,25 @@ public class RatingService {
 
     @Transactional
     public void deleteRating(Long recipeId, Long userId) {
-        recipeRepository.findById(recipeId)
+        Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
         Rating rating = ratingRepository.findByUser_IdAndRecipe_Id(userId, recipeId)
                 .orElseThrow(() -> new RuntimeException("Rating not found"));
 
         ratingRepository.delete(rating);
+
+        updateRecipeAvgRating(recipe);
+    }
+
+    private void updateRecipeAvgRating(Recipe recipe) {
+        List<Rating> ratingList = ratingRepository.findByRecipe_Id(recipe.getId());
+        double avgRating = ratingList.stream()
+                .mapToDouble(Rating::getRating)
+                .average()
+                .orElse(0.0);
+
+        recipe.setAvgRating(Math.round(avgRating * 10) / 10.0f);
+        recipeRepository.save(recipe);
     }
 }

@@ -16,6 +16,11 @@ public class RecipeController {
 
     private final RecipeService recipeService;
 
+    @GetMapping("/{recipeId}")
+    public ResponseEntity<?> getRecipeDetail(@PathVariable Long recipeId) {
+        return ResponseEntity.ok(recipeService.getRecipeDetail(recipeId));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.Create create,
                                           @RequestParam Long userId) {

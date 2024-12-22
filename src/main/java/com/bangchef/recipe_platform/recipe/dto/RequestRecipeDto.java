@@ -52,6 +52,7 @@ public class RequestRecipeDto {
     }
 
     @Data
+    @Builder
     public static class CookingStepDto {
         @NotNull(message = "조리단계 번호를 선택해야 합니다.")
         private int stepNumber; // 조리 단계 번호

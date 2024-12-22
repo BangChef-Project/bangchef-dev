@@ -34,6 +34,9 @@ public class FavoriteService {
 
         Favorite savedFavorite = favoriteRepository.save(favorite);
 
+        recipe.setFavoritesCount(recipe.getFavoritesCount() + 1);
+        recipeRepository.save(recipe);
+
         return ResponseFavoriteDto.Detail.builder()
                 .favoriteId(savedFavorite.getId())
                 .recipeId(savedFavorite.getRecipe().getId())
@@ -46,12 +49,15 @@ public class FavoriteService {
 
     @Transactional
     public void deleteFavorite(Long recipeId, Long userId) {
-        recipeRepository.findById(recipeId)
+        Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
         Favorite favorite = favoriteRepository.findByUser_IdAndRecipe_Id(userId, recipeId)
                 .orElseThrow(() -> new RuntimeException("Favorite not found"));
 
         favoriteRepository.delete(favorite);
+
+        recipe.setFavoritesCount(Math.max(0, recipe.getFavoritesCount() - 1));
+        recipeRepository.save(recipe);
     }
 }
