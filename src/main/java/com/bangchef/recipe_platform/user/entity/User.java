@@ -46,6 +46,9 @@ public class User {
     @Column(name = "subscribers")
     private Integer subscribers = 0;
 
+    @OneToMany(mappedBy = "subscriber", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Subscription> subscriptions = new ArrayList<>();
+
     @Builder.Default
     @Column(name = "avg_rating")
     private Float avgRating = 0.0f;

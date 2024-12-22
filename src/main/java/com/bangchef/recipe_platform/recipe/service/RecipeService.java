@@ -4,18 +4,23 @@ import com.bangchef.recipe_platform.common.enums.RecipeCategory;
 import com.bangchef.recipe_platform.common.enums.RecipeSortType;
 import com.bangchef.recipe_platform.common.exception.CustomException;
 import com.bangchef.recipe_platform.common.exception.ErrorCode;
+import com.bangchef.recipe_platform.fcm.dto.RequestFCMDto;
+import com.bangchef.recipe_platform.fcm.service.FirebaseCloudMessageService;
 import com.bangchef.recipe_platform.recipe.dto.RequestRecipeDto;
 import com.bangchef.recipe_platform.recipe.dto.ResponseRecipeDto;
 import com.bangchef.recipe_platform.recipe.entity.CookingStep;
 import com.bangchef.recipe_platform.recipe.entity.Recipe;
 import com.bangchef.recipe_platform.recipe.repository.CookingStepRepository;
 import com.bangchef.recipe_platform.recipe.repository.RecipeRepository;
+import com.bangchef.recipe_platform.user.entity.Subscription;
 import com.bangchef.recipe_platform.user.entity.User;
+import com.bangchef.recipe_platform.user.repository.SubscriptionRepository;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -25,9 +30,11 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final CookingStepRepository cookingStepRepository;
     private final UserRepository userRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @Transactional
-    public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.Create requestDto, Long userId) {
+    public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.Create requestDto, Long userId) throws IOException {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -56,6 +63,23 @@ public class RecipeService {
         savedRecipe.setCookingStepList(cookingStepList);
 
         cookingStepRepository.saveAll(cookingStepList);
+
+        List<Subscription> subscriptionList = subscriptionRepository.findByUserEmail(user.getEmail());
+
+        RequestFCMDto requestFCMDto = RequestFCMDto.builder()
+                .targetToken("토큰기입")
+                .title(user.getUsername() + "님의 새 레시피가 등록되었습니다!")
+                .body("레시피 제목 : " + savedRecipe.getTitle())
+                .build();
+        
+        for (Subscription subscription : subscriptionList){
+            User trg = subscription.getSubscriber();
+            firebaseCloudMessageService.sendMessageTo(
+                    requestFCMDto.getTargetToken(),
+                    requestFCMDto.getTitle(),
+                    requestFCMDto.getBody()
+            );
+        }
 
         return ResponseRecipeDto.RecipeInfo.builder()
                 .username(user.getUsername())
