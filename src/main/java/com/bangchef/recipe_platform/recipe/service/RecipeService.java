@@ -13,6 +13,9 @@ import com.bangchef.recipe_platform.recipe.repository.RecipeRepository;
 import com.bangchef.recipe_platform.user.entity.User;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,8 @@ public class RecipeService {
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
         recipe.setViews(recipe.getViews() + 1); // 조회수 증가
+
+        calculateOverallScore();
 
         return ResponseRecipeDto.RecipeInfo.builder()
                 .username(recipe.getUser().getUsername())
@@ -302,4 +307,70 @@ public class RecipeService {
 
         return pagedRecipe;
     }
+
+    @Transactional
+    public Page<ResponseRecipeDto.Ranking> getRecipeRanking(RequestRecipeDto.Ranking ranking) {
+        Pageable pageable = PageRequest.of(ranking.getPage(), ranking.getSize());
+
+        Page<Recipe> recipePage = switch (ranking.getCriteria()) {
+            case OVERALL -> recipeRepository.findAllByOrderByOverallScoreDesc(pageable);
+            case VIEWS -> recipeRepository.findAllByOrderByViewsDesc(pageable);
+            case COMMENTS_COUNT -> recipeRepository.findAllByOrderByCommentsCountDesc(pageable);
+            case AVG_RATING -> recipeRepository.findAllByOrderByAvgRatingDesc(pageable);
+            case FAVORITES_COUNT -> recipeRepository.findAllByOrderByFavoritesCountDesc(pageable);
+            default -> throw new IllegalArgumentException("Invalid ranking criteria: " + ranking.getCriteria());
+        };
+
+        return recipePage.map(recipe -> ResponseRecipeDto.Ranking.builder()
+                .id(recipe.getId())
+                .title(recipe.getTitle())
+                .username(recipe.getUser().getUsername())
+                .views(recipe.getViews())
+                .favoritesCount(recipe.getFavoritesCount())
+                .commentsCount(recipe.getCommentsCount())
+                .avgRating(recipe.getAvgRating())
+                .overallScore(recipe.getOverallScore())
+                .build());
+
+    }
+
+    // 종합점수 저장
+    @Transactional
+    public void calculateOverallScore() {
+
+        // 즐겨찾기 순위 가져오기
+        Page<Recipe> favoritesPage = recipeRepository.findAllByOrderByFavoritesCountDesc(PageRequest.of(0, (int) recipeRepository.count()));
+        List<Recipe> favoritesList = favoritesPage.getContent();
+        Map<Long, Integer> favoritesRankMap = getRankMap(favoritesList);
+
+        // 별점 순위 가져오기
+        Page<Recipe> ratingPage = recipeRepository.findAllByOrderByAvgRatingDesc(PageRequest.of(0, (int) recipeRepository.count()));
+        List<Recipe> ratingList = ratingPage.getContent();
+        Map<Long, Integer> ratingRankMap = getRankMap(ratingList);
+
+        // 조회수 순위 가져오기
+        Page<Recipe> viewsPage = recipeRepository.findAllByOrderByViewsDesc(PageRequest.of(0, (int) recipeRepository.count()));
+        List<Recipe> viewsList = viewsPage.getContent();
+        Map<Long, Integer> viewsRankMap = getRankMap(viewsList);
+
+        for (Recipe recipe : viewsList) {
+            long viewsScore = recipeRepository.count() - (viewsRankMap.get(recipe.getId()) - 1);
+            long favoritesScore = recipeRepository.count() - (favoritesRankMap.get(recipe.getId()) - 1);
+            long ratingScore = recipeRepository.count() - (ratingRankMap.get(recipe.getId()) - 1);
+
+            double overallScore = (viewsScore * 0.33) + (favoritesScore * 0.33) + (ratingScore * 0.33);
+
+            recipe.setOverallScore(overallScore);
+            recipeRepository.save(recipe);
+        }
+    }
+
+    private Map<Long, Integer> getRankMap(List<Recipe> recipes) {
+        Map<Long, Integer> rankMap = new HashMap<>();
+        for (int i = 0; i < recipes.size(); i++) {
+            rankMap.put(recipes.get(i).getId(), i + 1); // 1부터 시작하는 순위
+        }
+        return rankMap;
+    }
+
 }

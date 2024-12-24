@@ -3,6 +3,7 @@ package com.bangchef.recipe_platform.recipe.service;
 import com.bangchef.recipe_platform.recipe.dto.RequestCommentDto;
 import com.bangchef.recipe_platform.recipe.dto.ResponseCommentDto;
 import com.bangchef.recipe_platform.recipe.entity.Comment;
+import com.bangchef.recipe_platform.recipe.entity.Rating;
 import com.bangchef.recipe_platform.recipe.entity.Recipe;
 import com.bangchef.recipe_platform.recipe.repository.CommentRepository;
 import com.bangchef.recipe_platform.recipe.repository.RecipeRepository;
@@ -11,6 +12,8 @@ import com.bangchef.recipe_platform.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,8 @@ public class CommentService {
                 .parent(parent)
                 .content(requestDto.getContent())
                 .build());
+
+        updateCommentsCount(recipe);
 
         return ResponseCommentDto.Detail.builder()
                 .commentId(savedComment.getId())
@@ -71,6 +76,17 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
         commentRepository.deleteById(commentId);
+
+        updateCommentsCount(comment.getRecipe());
+    }
+
+    @Transactional
+    private void updateCommentsCount(Recipe recipe) {
+        recipe.setCommentsCount(recipe.getComments().size());
+        recipeRepository.save(recipe);
     }
 }

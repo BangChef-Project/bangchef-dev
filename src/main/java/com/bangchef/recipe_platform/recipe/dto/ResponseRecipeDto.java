@@ -30,6 +30,19 @@ public class ResponseRecipeDto {
     }
 
     @Data
+    @Builder
+    public static class Ranking {
+        private Long id;
+        private String title;
+        private String username;
+        private int views;
+        private int favoritesCount;
+        private int commentsCount;
+        private float avgRating;
+        private double overallScore;
+    }
+
+    @Data
     public static class Detail {
         private Long id;
         private String title;

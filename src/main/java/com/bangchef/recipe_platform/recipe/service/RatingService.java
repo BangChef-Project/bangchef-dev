@@ -21,6 +21,7 @@ public class RatingService {
     private final RecipeRepository recipeRepository;
     private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
+    private final RecipeService recipeService;
 
     @Transactional
     public ResponseRatingDto.Detail createRating(RequestRatingDto.CreateOrUpdate requestDto, Long userId) {
@@ -36,6 +37,7 @@ public class RatingService {
                 .build());
 
         updateRecipeAvgRating(recipe);
+        recipeService.calculateOverallScore();
 
         return ResponseRatingDto.Detail.builder()
                 .ratingId(savedRating.getId())
@@ -56,6 +58,8 @@ public class RatingService {
 
         updateRecipeAvgRating(recipeRepository.findById(requestDto.getRecipeId())
                 .orElseThrow(() -> new RuntimeException("Recipe not found")));
+
+        recipeService.calculateOverallScore();
 
         return ResponseRatingDto.Detail.builder()
                 .ratingId(rating.getId())
@@ -78,8 +82,11 @@ public class RatingService {
         ratingRepository.delete(rating);
 
         updateRecipeAvgRating(recipe);
+
+        recipeService.calculateOverallScore();
     }
 
+    @Transactional
     private void updateRecipeAvgRating(Recipe recipe) {
         List<Rating> ratingList = ratingRepository.findByRecipe_Id(recipe.getId());
         double avgRating = ratingList.stream()
@@ -87,7 +94,7 @@ public class RatingService {
                 .average()
                 .orElse(0.0);
 
-        recipe.setAvgRating(Math.round(avgRating * 10) / 10.0f);
+        recipe.setAvgRating(Math.round(avgRating * 100) / 100.0f);
         recipeRepository.save(recipe);
     }
 }

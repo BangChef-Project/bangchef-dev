@@ -19,6 +19,7 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final UserRepository userRepository;
     private final RecipeRepository recipeRepository;
+    private final RecipeService recipeService;
 
     @Transactional
     public ResponseFavoriteDto.Detail createFavorite(RequestFavoriteDto.Create requestDto, Long userId) {
@@ -36,6 +37,8 @@ public class FavoriteService {
 
         recipe.setFavoritesCount(recipe.getFavoritesCount() + 1);
         recipeRepository.save(recipe);
+
+        recipeService.calculateOverallScore();
 
         return ResponseFavoriteDto.Detail.builder()
                 .favoriteId(savedFavorite.getId())
@@ -59,5 +62,7 @@ public class FavoriteService {
 
         recipe.setFavoritesCount(Math.max(0, recipe.getFavoritesCount() - 1));
         recipeRepository.save(recipe);
+
+        recipeService.calculateOverallScore();
     }
 }
