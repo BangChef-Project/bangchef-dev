@@ -9,7 +9,9 @@ import com.bangchef.recipe_platform.user.dto.CustomUserDetails;
 import com.bangchef.recipe_platform.user.dto.LoginDto;
 import com.bangchef.recipe_platform.user.dto.UserResponseDto;
 import com.bangchef.recipe_platform.user.dto.UserUpdateDto;
+import com.bangchef.recipe_platform.user.entity.Subscription;
 import com.bangchef.recipe_platform.user.entity.User;
+import com.bangchef.recipe_platform.user.repository.SubscriptionRepository;
 import com.bangchef.recipe_platform.user.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
@@ -30,17 +32,20 @@ public class UserService {
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository; // 리프레시 토큰 저장소 추가
     private final EmailService emailService;
+    private final SubscriptionRepository subscriptionRepository;
 
     @Value("1")
     private Long jwtExpiration;
 
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
-                       JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, EmailService emailService) {
+                       JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, EmailService emailService,
+                       SubscriptionRepository subscriptionRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
         this.emailService = emailService;
+        this.subscriptionRepository = subscriptionRepository;
 
     }
 
@@ -240,5 +245,59 @@ public class UserService {
         }
 
         return pagedUser;
+    }
+
+    @Transactional
+    public String updateSubscribe(String userEmail, String token){
+        String ownEmail = jwtUtil.getEmail(token);
+
+        User own = userRepository.findByEmail(ownEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (userEmail.equals(ownEmail)){
+            throw new CustomException(ErrorCode.SAME_USER);
+        }
+
+        user.setSubscribers(user.getSubscribers() + 1);
+
+        Subscription subscription = Subscription.builder()
+                        .subscriber(own)
+                                .subscribedTo(user)
+                                        .build();
+
+        userRepository.save(user);
+        subscriptionRepository.save(subscription);
+
+        return user.getUsername() + "(" + user.getEmail() + ") 님을 구독하셨습니다!";
+    }
+
+    @Transactional
+    public String cancelSubscribe(String userEmail, String token){
+        String ownEmail = jwtUtil.getEmail(token);
+
+        List<Subscription> subscriptionList = subscriptionRepository.findByUserEmail(ownEmail);
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (subscriptionList.isEmpty()){
+            throw new CustomException(ErrorCode.SUBSCRIBE_NOT_FOUND);
+        }
+
+        for (Subscription subscription : subscriptionList){
+            if (subscription.getSubscribedTo().getEmail().equals(user.getEmail())){
+                if (!ownEmail.equals(subscription.getSubscriber().getEmail())){
+                    throw new CustomException(ErrorCode.ACCESS_DENIED);
+                }
+
+                subscriptionRepository.delete(subscription);
+                return user.getUsername() + "(" + user.getEmail() + ") 님을 구독 해지하셨습니다!";
+            }
+        }
+
+        throw new CustomException(ErrorCode.SUBSCRIBE_NOT_FOUND);
     }
 }

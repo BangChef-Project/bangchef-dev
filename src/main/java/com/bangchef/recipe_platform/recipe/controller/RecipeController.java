@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/recipes")
@@ -18,7 +20,7 @@ public class RecipeController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.Create create,
-                                          @RequestParam Long userId) {
+                                          @RequestParam Long userId) throws IOException {
 
         return ResponseEntity.ok(recipeService.createRecipe(create, userId));
     }
