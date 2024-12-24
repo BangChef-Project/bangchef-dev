@@ -61,6 +61,14 @@ public class Recipe {
     @Column(name = "avg_rating", nullable = false)
     private Float avgRating = 0.0f; // 평균 별점 (기본값 0.0)
 
+    @Builder.Default
+    @Column(name = "overall_score", nullable = false)
+    private Double overallScore = 0.0; // 종합 점수 (기본값 0.0)
+
+    @Builder.Default
+    @Column(name = "comments_count", nullable = false)
+    private Integer commentsCount = 0; // 댓글 수 (기본값 0)
+
     @Column(name = "image_url", nullable = false)
     private String imageUrl; // 음식 이미지
 
