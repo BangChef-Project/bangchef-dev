@@ -30,6 +30,7 @@ public class JoinService {
         String password = joinDto.getPassword();
         String email = joinDto.getEmail();
         Role role = joinDto.getRole();
+        String fcmToken = joinDto.getFcmToken();
 
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("비밀번호는 필수 입력 사항입니다.");
@@ -57,6 +58,7 @@ public class JoinService {
         user.setEmail(email);
         user.setRole(role);
         user.setEnabled(false); // 초기 상태는 비활성화
+        user.setFcmToken(fcmToken);
 
         // 인증 토큰 생성
         String token = UUID.randomUUID().toString();

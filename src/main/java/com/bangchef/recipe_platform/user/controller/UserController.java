@@ -83,6 +83,27 @@ public class UserController {
         return ResponseEntity.ok(status);
     }
 
+    @PutMapping("/subscribe-update")
+    public ResponseEntity<?> updateSubscribe(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "userEmail") String userEmail
+    ){
+        token = token.replace("Bearer ", "").trim();
 
+        String res = userService.updateSubscribe(userEmail, token);
 
+        return ResponseEntity.ok(res);
+    }
+
+    @DeleteMapping("/subscribe-cancel")
+    public ResponseEntity<?> cancelSubscribe(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "userEmail") String userEmail
+    ){
+        token = token.replace("Bearer ", "").trim();
+
+        String res = userService.cancelSubscribe(userEmail, token);
+
+        return ResponseEntity.ok(res);
+    }
 }

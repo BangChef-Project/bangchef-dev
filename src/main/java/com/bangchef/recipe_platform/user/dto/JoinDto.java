@@ -20,4 +20,6 @@ public class JoinDto {
 
     private Role role; // Role 필드 추가
 
+    private String fcmToken;
+
 }
