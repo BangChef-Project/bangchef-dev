@@ -36,7 +36,7 @@ public class RecipeController {
 
         recipeService.deleteRecipe(recipeId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("레시피가 삭제되었습니다.");
     }
 
     @GetMapping("/title")

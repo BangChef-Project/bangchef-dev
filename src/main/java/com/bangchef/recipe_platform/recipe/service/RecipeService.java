@@ -110,7 +110,7 @@ public class RecipeService {
         recipe.setCookTime(requestDto.getCookTime());
         recipe.setImageUrl(requestDto.getImageUrl());
 
-        cookingStepRepository.deleteByRecipeId(recipe.getId());
+        cookingStepRepository.deleteByRecipe_Id(recipe.getId());
 
         List<CookingStep> cookingStepList = requestDto.getCookingStepDtoList().stream()
                 .map(cookingStepDto -> CookingStep.builder()
