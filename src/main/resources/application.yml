@@ -19,6 +19,11 @@ spring:
     username: sa
     password:
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   mail:
     host: smtp.gmail.com #gmail의 smtp 서버 호스트
     port: 587 #gmail의 smtp 서버 포트

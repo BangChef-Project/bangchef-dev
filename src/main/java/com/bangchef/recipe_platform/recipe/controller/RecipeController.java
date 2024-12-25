@@ -2,11 +2,9 @@ package com.bangchef.recipe_platform.recipe.controller;
 
 import com.bangchef.recipe_platform.common.enums.RecipeSortType;
 import com.bangchef.recipe_platform.recipe.dto.RequestRecipeDto;
-import com.bangchef.recipe_platform.recipe.entity.Recipe;
 import com.bangchef.recipe_platform.recipe.service.RecipeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +17,6 @@ import java.io.IOException;
 public class RecipeController {
 
     private final RecipeService recipeService;
-
-    @GetMapping("/{recipeId}")
-    public ResponseEntity<?> getRecipeDetail(@PathVariable Long recipeId) {
-        return ResponseEntity.ok(recipeService.getRecipeDetail(recipeId));
-    }
 
     @PostMapping("/create")
     public ResponseEntity<?> createRecipe(@Validated @RequestBody RequestRecipeDto.Create create,
@@ -43,13 +36,7 @@ public class RecipeController {
 
         recipeService.deleteRecipe(recipeId);
 
-        return ResponseEntity.ok("레시피가 삭제되었습니다.");
-    }
-
-    @GetMapping("/rankings")
-    public ResponseEntity<?> getRecipeRanking(@Valid @ModelAttribute RequestRecipeDto.Ranking ranking) {
-        Page<?> recipes = recipeService.getRecipeRanking(ranking);
-        return ResponseEntity.ok(recipes);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/title")

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestRecipeDto {
-
     @Getter
     @Setter
     @NoArgsConstructor
@@ -52,7 +51,6 @@ public class RequestRecipeDto {
     }
 
     @Data
-    @Builder
     public static class CookingStepDto {
         @NotNull(message = "조리단계 번호를 선택해야 합니다.")
         private int stepNumber; // 조리 단계 번호
@@ -98,24 +96,6 @@ public class RequestRecipeDto {
 
         @NotEmpty(message = "조리 단계는 최소 1개 이상이어야 합니다.")
         private List<CookingStepDto> cookingStepDtoList = new ArrayList<>();
-    }
-
-    @Data
-    public static class Ranking {
-
-        private int page = 0; // 페이지 번호 (기본값 0)
-        private int size = 10; // 페이지 크기 (기본값 10)
-
-        @NotNull(message = "정렬 기준은 필수입니다.")
-        private RankingCriteria criteria; // 정렬 기준 (종합, 조회수, 댓글수, 평균별점, 즐겨찾기 수)
-
-        public enum RankingCriteria {
-            OVERALL,       // 종합 순위 (조회수, 평균별점, 즐겨찾기 등을 종합적으로 계산)
-            VIEWS,         // 조회수 기준
-            COMMENTS_COUNT, // 댓글 수 기준
-            AVG_RATING,    // 평균 별점 기준
-            FAVORITES_COUNT // 즐겨찾기 수 기준
-        }
     }
 
 }

@@ -2,8 +2,7 @@ package com.bangchef.recipe_platform.recipe.dto;
 
 import com.bangchef.recipe_platform.common.enums.Difficulty;
 import com.bangchef.recipe_platform.common.enums.RecipeCategory;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,25 +23,17 @@ public class ResponseRecipeDto {
         private Integer views;
         private Integer favoritesCount;
         private Float avgRating;
+        private Integer ratingCount;
         private String imageUrl;
         private LocalDateTime createdAt;
         private List<RequestRecipeDto.CookingStepDto> cookingStepList;
     }
 
-    @Data
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     @Builder
-    public static class Ranking {
-        private Long id;
-        private String title;
-        private String username;
-        private int views;
-        private int favoritesCount;
-        private int commentsCount;
-        private float avgRating;
-        private double overallScore;
-    }
-
-    @Data
     public static class Detail {
         private Long id;
         private String title;
@@ -52,6 +43,7 @@ public class ResponseRecipeDto {
         private int views;
         private int favoritesCount;
         private Float avgRating;
+        private Integer ratingCount;
         private String imageUrl;
     }
 }

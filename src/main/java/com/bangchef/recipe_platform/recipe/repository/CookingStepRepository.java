@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface CookingStepRepository extends JpaRepository<CookingStep, Long> {
 
-    List<CookingStep> findByRecipe_Id(Long recipeId);
-    void deleteByRecipe_Id(Long recipeId);
+    List<CookingStep> findByRecipeId(Long recipeId);
+    void deleteByRecipeId(Long recipeId);
 }
