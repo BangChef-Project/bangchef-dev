@@ -5,6 +5,7 @@ import com.bangchef.recipe_platform.common.enums.RecipeCategory;
 import com.bangchef.recipe_platform.report.entity.Report;
 import com.bangchef.recipe_platform.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class Recipe {
     private String title; // 레시피 제목
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
-    private String description; // git 레시피 설명
+    private String description; // 레시피 설명
 
     @Column(name = "ingredients", nullable = false, columnDefinition = "TEXT")
     private String ingredients; // 재료 리스트 (구분자로 구분)
@@ -44,6 +45,7 @@ public class Recipe {
     @Column(name = "difficulty", nullable = false)
     private Difficulty difficulty; // 요리 난이도 (쉬움, 보통, 어려움)
 
+    @Min(1)
     @Column(name = "cook_time", nullable = false)
     private Integer cookTime; // 조리시간 (분 단위)
 
@@ -60,11 +62,12 @@ public class Recipe {
     private Float avgRating = 0.0f; // 평균 별점 (기본값 0.0)
 
     @Builder.Default
-    @Column(name = "rating_count", nullable = false)
-    private Integer ratingCount = 0; // 별점 수 (기본값 0)
+    @Column(name = "overall_score", nullable = false)
+    private Double overallScore = 0.0; // 종합 점수 (기본값 0.0)
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecipeRating> recipeRatingList = new ArrayList<>();
+    @Builder.Default
+    @Column(name = "comments_count", nullable = false)
+    private Integer commentsCount = 0; // 댓글 수 (기본값 0)
 
     @Column(name = "image_url", nullable = false)
     private String imageUrl; // 음식 이미지
@@ -77,6 +80,21 @@ public class Recipe {
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("stepNumber ASC")
     private List<CookingStep> cookingStepList = new ArrayList<>(); // 조리순서
+
+    @Builder.Default
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt DESC") // 최신 순
+    private List<Comment> comments = new ArrayList<>(); // 댓글 리스트
+
+    @Builder.Default
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt DESC") // 최신 순
+    private List<Rating> ratings = new ArrayList<>(); // 별점 리스트
+
+    @Builder.Default
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt DESC") // 최신 순
+    private List<Favorite> favorites = new ArrayList<>(); // 즐겨찾기 리스트
 
     @OneToMany(mappedBy = "reportedRecipe", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Report> reports;

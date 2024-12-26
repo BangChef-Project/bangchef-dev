@@ -18,7 +18,6 @@ spring:
     url: jdbc:h2:mem:bangchef
     username: sa
     password:
-
   data:
     redis:
       host: localhost

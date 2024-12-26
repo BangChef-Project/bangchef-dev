@@ -15,7 +15,6 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
     ALREADY_LOGGED_IN(HttpStatus.CONFLICT, "이미 로그인된 사용자입니다. 로그아웃 후 다시 시도해주세요."),
-    ALREADY_SUBSCRIBED(HttpStatus.CONFLICT, "이미 구독된 사용자입니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     SUBSCRIBE_NOT_FOUND(HttpStatus.NOT_FOUND, "구독 목록을 찾을 수 없습니다."),
     SAME_USER(HttpStatus.BAD_REQUEST, "자기 자신은 구독할 수 없습니다."),
@@ -23,8 +22,6 @@ public enum ErrorCode {
     // 레시피 관련
     RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
-    ALREADY_RATING(HttpStatus.CONFLICT, "이미 별점을 부여한 레시피입니다."),
-    RATING_NOT_FOUND(HttpStatus.NOT_FOUND, "별점을 찾을 수 없습니다."),
 
     // 메일 인증 관련
     EMAIL_VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메일 인증에 실패했습니다."),

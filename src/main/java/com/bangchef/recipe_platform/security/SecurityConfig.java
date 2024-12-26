@@ -65,7 +65,12 @@ public class SecurityConfig {
                                 "/recipes",
                                 "/recipes/**",
                                 "/reports/**",
-                                "/ranking/**",
+                                "/comments",
+                                "/comments/**",
+                                "/ratings",
+                                "/ratings/**",
+                                "/favorites",
+                                "/favorites/**",
                                 "/h2-console/**" //서브경로 포함
                         ).permitAll()
 

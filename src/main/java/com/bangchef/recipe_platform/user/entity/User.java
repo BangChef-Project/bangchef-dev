@@ -1,7 +1,6 @@
 package com.bangchef.recipe_platform.user.entity;
 
 import com.bangchef.recipe_platform.common.enums.Role;
-import com.bangchef.recipe_platform.recipe.entity.RecipeRating;
 import com.bangchef.recipe_platform.report.entity.Report;
 import com.bangchef.recipe_platform.security.token.entity.RefreshToken;
 import jakarta.persistence.*;
@@ -23,7 +22,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false, updatable = false)
-    private Long userId;
+    private Long id;
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
@@ -54,9 +53,6 @@ public class User {
     @OneToMany(mappedBy = "subscriber", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subscription> subscriptions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecipeRating> recipeRatingList = new ArrayList<>();
-
     @Builder.Default
     @Column(name = "avg_rating")
     private Float avgRating = 0.0f;
@@ -77,6 +73,7 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean enabled = false; // 초기 비활성화 상태
 
@@ -86,6 +83,7 @@ public class User {
     @Column(unique = true)
     private String fcmToken; // fcm 토큰
 
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
