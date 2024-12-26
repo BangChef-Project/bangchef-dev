@@ -442,7 +442,7 @@ public class RecipeService {
                 throw new CustomException(ErrorCode.ACCESS_DENIED);
             }
         } else {
-            throw new CustomException(ErrorCode.ALREADY_RATING);
+            throw new CustomException(ErrorCode.ALREADY_RATING); 
         }
     }
 }
