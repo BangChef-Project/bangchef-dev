@@ -43,6 +43,10 @@ public class User {
     private String introduction;
 
     @Builder.Default
+    @Column(name = "recipe_count")
+    private Integer recipeCount = 0;
+
+    @Builder.Default
     @Column(name = "subscribers")
     private Integer subscribers = 0;
 

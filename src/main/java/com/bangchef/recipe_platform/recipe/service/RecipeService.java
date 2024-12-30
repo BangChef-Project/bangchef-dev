@@ -12,6 +12,7 @@ import com.bangchef.recipe_platform.recipe.entity.CookingStep;
 import com.bangchef.recipe_platform.recipe.entity.Recipe;
 import com.bangchef.recipe_platform.recipe.repository.CookingStepRepository;
 import com.bangchef.recipe_platform.recipe.repository.RecipeRepository;
+import com.bangchef.recipe_platform.redis.service.RedisService;
 import com.bangchef.recipe_platform.user.entity.Subscription;
 import com.bangchef.recipe_platform.user.entity.User;
 import com.bangchef.recipe_platform.user.repository.SubscriptionRepository;
@@ -35,6 +36,7 @@ public class RecipeService {
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final FirebaseCloudMessageService firebaseCloudMessageService;
+    private final RedisService redisService;
 
     @Transactional
     public ResponseRecipeDto.RecipeInfo getRecipeDetail(Long recipeId) {
@@ -73,6 +75,11 @@ public class RecipeService {
     public ResponseRecipeDto.RecipeInfo createRecipe(RequestRecipeDto.Create requestDto, Long userId) throws IOException {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setRecipeCount(user.getRecipeCount() + 1);
+        redisService.addRecipeCountData(user);
+        redisService.addScoreData(user);
+        userRepository.save(user);
 
         Recipe recipe = Recipe.builder()
                 .title(requestDto.getTitle())
@@ -179,6 +186,16 @@ public class RecipeService {
 
     @Transactional
     public void deleteRecipe(Long recipeId) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RECIPE_NOT_FOUND));
+
+        User user = userRepository.findById(recipe.getUser().getId()).orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setRecipeCount(user.getRecipeCount() - 1);
+        redisService.addRecipeCountData(user);
+        redisService.addScoreData(user);
+        userRepository.save(user);
+
         recipeRepository.deleteById(recipeId);
     }
 
@@ -376,6 +393,9 @@ public class RecipeService {
         List<Recipe> viewsList = viewsPage.getContent();
         Map<Long, Integer> viewsRankMap = getRankMap(viewsList);
 
+        Map<Long, Long> ratingMap = new HashMap<>();
+        Map<Long, Integer> countMap = new HashMap<>();
+
         for (Recipe recipe : viewsList) {
             long viewsScore = recipeRepository.count() - (viewsRankMap.get(recipe.getId()) - 1);
             long favoritesScore = recipeRepository.count() - (favoritesRankMap.get(recipe.getId()) - 1);
@@ -383,8 +403,24 @@ public class RecipeService {
 
             double overallScore = (viewsScore * 0.33) + (favoritesScore * 0.33) + (ratingScore * 0.33);
 
+            Long userId = recipe.getUser().getId();
+            ratingMap.put(userId, (long)ratingRankMap.get(recipe.getId()));
+            countMap.put(userId, countMap.getOrDefault(userId, 0) + 1);
+
             recipe.setOverallScore(overallScore);
             recipeRepository.save(recipe);
+        }
+
+        for (Map.Entry<Long, Long> ratingEntry : ratingMap.entrySet()) {
+            long userId = ratingEntry.getKey();
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+            float rating = ratingEntry.getValue() / (float) countMap.get(userId);
+            user.setAvgRating(rating);
+            redisService.addAvgRatingData(user);
+            redisService.addScoreData(user);
         }
     }
 

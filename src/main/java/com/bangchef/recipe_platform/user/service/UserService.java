@@ -3,6 +3,7 @@ package com.bangchef.recipe_platform.user.service;
 import com.bangchef.recipe_platform.common.enums.UserSortType;
 import com.bangchef.recipe_platform.common.exception.CustomException;
 import com.bangchef.recipe_platform.common.exception.ErrorCode;
+import com.bangchef.recipe_platform.redis.service.RedisService;
 import com.bangchef.recipe_platform.security.JWTUtil;
 import com.bangchef.recipe_platform.security.token.repository.RefreshTokenRepository;
 import com.bangchef.recipe_platform.user.dto.CustomUserDetails;
@@ -33,19 +34,21 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository; // 리프레시 토큰 저장소 추가
     private final EmailService emailService;
     private final SubscriptionRepository subscriptionRepository;
+    private final RedisService redisService;
 
     @Value("1")
     private Long jwtExpiration;
 
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
                        JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository, EmailService emailService,
-                       SubscriptionRepository subscriptionRepository) {
+                       SubscriptionRepository subscriptionRepository, RedisService redisService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
         this.emailService = emailService;
         this.subscriptionRepository = subscriptionRepository;
+        this.redisService = redisService;
 
     }
 
@@ -263,6 +266,9 @@ public class UserService {
 
         user.setSubscribers(user.getSubscribers() + 1);
 
+        redisService.addSubscribeData(user);
+        redisService.addScoreData(user);
+
         Subscription subscription = Subscription.builder()
                         .subscriber(own)
                                 .subscribedTo(user)
@@ -292,6 +298,12 @@ public class UserService {
                 if (!ownEmail.equals(subscription.getSubscriber().getEmail())){
                     throw new CustomException(ErrorCode.ACCESS_DENIED);
                 }
+
+                subscription.getSubscribedTo().setSubscribers(subscription.getSubscribedTo().getSubscribers() - 1);
+                userRepository.save(subscription.getSubscribedTo());
+
+                redisService.addSubscribeData(user);
+                redisService.addScoreData(user);
 
                 subscriptionRepository.delete(subscription);
                 return user.getUsername() + "(" + user.getEmail() + ") 님을 구독 해지하셨습니다!";

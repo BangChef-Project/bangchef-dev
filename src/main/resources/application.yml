@@ -18,6 +18,10 @@ spring:
     url: jdbc:h2:mem:bangchef
     username: sa
     password:
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
   mail:
     host: smtp.gmail.com #gmail의 smtp 서버 호스트
